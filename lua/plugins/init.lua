@@ -5,6 +5,31 @@ return {
         "tpope/vim-commentary",
     },
     {
+        "mbbill/undotree",
+        config = function()
+            vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+        end,
+    },
+    {
+        -- The one and only THEPRIMEAGEN
+        "ThePrimeagen/harpoon",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
+        config = function()
+            local mark = require("harpoon.mark")
+            local ui = require("harpoon.ui")
+
+            vim.keymap.set("n", "<leader>a", mark.add_file)
+            vim.keymap.set("n", "<C-e>", ui.toggle_quick_menu)
+
+            vim.keymap.set("n", "<C-h>", function() ui.nav_file(1) end)
+            vim.keymap.set("n", "<C-j>", function() ui.nav_file(2) end)
+            vim.keymap.set("n", "<C-k>", function() ui.nav_file(3) end)
+            vim.keymap.set("n", "<C-l>", function() ui.nav_file(5) end)
+        end,
+    },
+    {
         "folke/neoconf.nvim", cmd = "Neoconf"
     },
     {
@@ -14,7 +39,7 @@ return {
             "nvim-tree/nvim-web-devicons",
             "MunifTanjim/nui.nvim",
         },
-        -- if non of this is called, setup will not be called, 
+        -- if non of this is called, setup will not be called,
         -- which means the plugin will not be initialized and it will wait for
         -- a call to `:Neotree` to actually work
         -- I think it's a good idea to call opts for plugin options and configurations

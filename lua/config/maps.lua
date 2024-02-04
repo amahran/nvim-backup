@@ -37,8 +37,9 @@ map.set("n", "Q", "<nop>")
 map.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 
 -- quick fix navigating
-map.set("n", "<C-k>", "<cmd>cnext<CR>zz")
-map.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+-- TODO: figure out a consistent keymaps
+map.set("n", "<C-n>", "<cmd>cnext<CR>zz")
+map.set("n", "<C-p>", "<cmd>cprev<CR>zz")
 map.set("n", "<leader>k", "<cmd>lnext<CR>zz")
 map.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
@@ -53,4 +54,5 @@ end)
 
 -- remove the highlighted search
 map.set("n", "<c-l>", ":<c-u>nohlsearch<cr><c-l>")
-
+-- quality of life, although not so much needed with telescope around
+vim.api.nvim_set_keymap('c', '%%', [[(vim.fn.getcmdtype() == ':' and vim.fn.expand('%:h').'/' or '%%')]], { noremap = true, expr = true })
