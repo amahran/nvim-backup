@@ -1,101 +1,121 @@
 return {
+    -- Mason to help installing LSP servers, DAP servers, linters & formatters
     {
-        'VonHeikemen/lsp-zero.nvim',
-        branch = 'v3.x',
-        lazy = true,
-        config = false,
-        init = function()
-            -- Disable automatic setup, we are doing it manually
-            vim.g.lsp_zero_extend_cmp = 0
-            vim.g.lsp_zero_extend_lspconfig = 0
+        "williamboman/mason.nvim",
+        config = true
+    },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        opts = {
+            ensure_installed = { "clangd" }
+        }
+    },
+    -- config for nvim lsp client
+    {
+        "neovim/nvim-lspconfig",
+        config = function()
+            -- setup shall connect the server
+            require'lspconfig'.clangd.setup({
+                on_attach = function()
+                    vim.keymap.set('n', '<leader>K', vim.lsp.buf.hover,
+                        { buffer = 0, desc = "show code doc"})
+                    vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition,
+                        { buffer = 0, desc = "jump to defintion"})
+                    vim.keymap.set('n', '<leader>gp', vim.lsp.buf.declaration,
+                        { buffer = 0, desc = "jump to declaration"})
+                    vim.keymap.set('n', '<leader>gt', vim.lsp.buf.type_definition,
+                        { buffer = 0, desc = "jump to type definition"})
+                    vim.keymap.set('n', '<leader>fr', vim.lsp.buf.references,
+                        { buffer = 0, desc = "find all references"})
+                    vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename,
+                        { buffer = 0, desc = "rename all symbols"})
+                    vim.keymap.set('n', '<leader>fm', vim.lsp.buf.format,
+                        { buffer = 0, desc = "format current buffer"})
+                    vim.keymap.set('n', '<leader>gh', '<cmd>ClangdSwitchSourceHeader<cr>',
+                        { buffer = 0, desc = "switch between source and header"})
+                    vim.keymap.set('n', ']d', vim.diagnostic.goto_next,
+                        { buffer = 0, desc = "go to next error/warning"})
+                    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev,
+                        { buffer = 0, desc = "go to previous error/warning"})
+                end,
+            })
         end,
     },
+    -- config auto-completion
     {
-        'williamboman/mason.nvim',
-        lazy = false,
-        config = true,
-    },
+        -- This is like asking everybody while typing whether they have any 
+        -- suggesstion of what is about to be typed and if so, it takes this
+        -- input and suggessts it in a floating window
 
-    -- Autocompletion
-    {
-        'hrsh7th/nvim-cmp',
-        event = 'InsertEnter',
+        -- This is taken as is from lazy.vim
+        "hrsh7th/nvim-cmp",
+        version = false, -- last release is way too old
+        event = "InsertEnter",
         dependencies = {
-            {'L3MON4D3/LuaSnip'},
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "L3MON4D3/LuaSnip",
+            "saadparwaiz1/cmp_luasnip",
         },
-        config = function()
-            -- Here is where you configure the autocompletion settings.
-            local lsp_zero = require('lsp-zero')
-            lsp_zero.extend_cmp()
-
-            -- And you can configure cmp even more, if you want to.
-            local cmp = require('cmp')
-            local cmp_action = lsp_zero.cmp_action()
-            local cmp_select = {behavior = cmp.SelectBehavior.Select}
-
-            cmp.setup({
-                sources = {
-                    {name = 'path'},
-                    {name = 'nvim_lsp'},
-                    {name = 'nvim_lua'},
-                    {name = 'luasnip', keyword_length = 2},
-                    {name = 'buffer', keyword_length = 3},
-                },
-                formatting = lsp_zero.cmp_format(),
-                mapping = cmp.mapping.preset.insert({
-                    ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-                    ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                    ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-                    ['<C-Space>'] = cmp.mapping.complete(),
-                }),
-            })
-        end
-    },
-
-    -- LSP
-    {
-        'neovim/nvim-lspconfig',
-        cmd = {'LspInfo', 'LspInstall', 'LspStart'},
-        event = {'BufReadPre', 'BufNewFile'},
-        dependencies = {
-            {'hrsh7th/cmp-nvim-lsp'},
-            {'williamboman/mason-lspconfig.nvim'},
-        },
-        config = function()
-            -- This is where all the LSP shenanigans will live
-            local lsp_zero = require('lsp-zero')
-            lsp_zero.extend_lspconfig()
-
-            --- if you want to know more about lsp-zero and mason.nvim
-            --- read this: https://github.com/VonHeikemen/lsp-zero.nvim/blob/v3.x/doc/md/guides/integrate-with-mason-nvim.md
-            lsp_zero.on_attach(function(client, bufnr)
-                -- see :help lsp-zero-keybindings
-                -- to learn the available actions
-                local opts = {buffer = bufnr, remap = false}
-
-                vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-                vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-                vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-                vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-                vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-                vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
-                vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-                vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-                vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-                vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-            end)
-
-            require('mason-lspconfig').setup({
-                ensure_installed = {},
-                handlers = {
-                    lsp_zero.default_setup,
-                    lua_ls = function()
-                        -- (Optional) Configure lua language server for neovim
-                        local lua_opts = lsp_zero.nvim_lua_ls()
-                        require('lspconfig').lua_ls.setup(lua_opts)
+        opts = function()
+            vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
+            local cmp = require("cmp")
+            local defaults = require("cmp.config.default")()
+            return {
+                snippet = {
+                    expand = function(args)
+                        require('luasnip').lsp_expand(args.body)
                     end,
-                }
-            })
-        end
-    }
+                },
+                completion = {
+                    completeopt = "menu,menuone,noinsert",
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+                    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+                    ["<C-Space>"] = cmp.mapping.complete(),
+                    ["<C-e>"] = cmp.mapping.abort(),
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+                    ["<S-CR>"] = cmp.mapping.confirm({
+                        behavior = cmp.ConfirmBehavior.Replace,
+                        select = true,
+                    }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+                    ["<C-CR>"] = function(fallback)
+                        cmp.abort()
+                        fallback()
+                    end,
+                }),
+                sources = cmp.config.sources({
+                    { name = "nvim_lsp" },
+                    { name = "luasnip" },
+                }, {
+                        { name = "buffer" },
+                    }),
+                experimental = {
+                    ghost_text = {
+                        hl_group = "CmpGhostText",
+                    },
+                },
+                sorting = defaults.sorting,
+            }
+        end,
+        ---@param opts cmp.ConfigSchema
+        config = function(_, opts)
+            for _, source in ipairs(opts.sources) do
+                source.group_index = source.group_index or 1
+            end
+            require("cmp").setup(opts)
+
+            -- Set up lspconfig.
+            local capabilities = require('cmp_nvim_lsp').default_capabilities()
+            -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+            require('lspconfig')['clangd'].setup {
+                capabilities = capabilities
+            }
+        end,
+    },
 }
+

@@ -32,12 +32,15 @@ return {
     },
     {
         "rose-pine/neovim",
-        lazy = false,
         priority = 1000, -- load it first thing
         name = "rose-pine",
         config = function()
             require('rose-pine').setup({
                 disable_background = true,
+                styles = {
+                    italic = false,
+                    bold = false,
+                }
             })
 
             vim.cmd("colorscheme rose-pine")
