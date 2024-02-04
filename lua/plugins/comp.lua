@@ -14,12 +14,36 @@ return {
         "hrsh7th/cmp-path",         -- completes paths 
         "hrsh7th/cmp-nvim-lua",     -- helpful for lua develeopment - like writing this configurations
         "saadparwaiz1/cmp_luasnip", -- get completion from the luasnip plugin
-        "L3MON4D3/LuaSnip",
-    },
+        {
+            "L3MON4D3/LuaSnip",
+            version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+            -- install jsregexp (optional!).
+            build = "make install_jsregexp",
+            dependencies = {
+                "rafamadriz/friendly-snippets"
+           },
+            config = function()
+                local ls = require('luasnip')
+                -- TODO: not sure what is this?
+                vim.keymap.set({"i"}, "<C-s>k", function() ls.expand() end, {silent = true})
+                vim.keymap.set({"i", "s"}, "<C-s>l", function() ls.jump( 1) end, {silent = true})
+                vim.keymap.set({"i", "s"}, "<C-s>h", function() ls.jump(-1) end, {silent = true})
+
+                -- this moves to outer expandstions if nested functions for example
+                vim.keymap.set({"i", "s"}, "<C-s>e", function()
+                    if ls.choice_active() then
+                        ls.change_choice(1)
+                    end
+                end, {silent = true})
+            end,
+        },
+        "onsails/lspkind.nvim",
+    }, 
     opts = function() -- this like require(plugin).setup(opts)
-        vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
+        -- vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
         local cmp = require("cmp")
         local defaults = require("cmp.config.default")()
+        local lspkind = require("lspkind")
         return {
             snippet = {
                 expand = function(args)
@@ -27,35 +51,46 @@ return {
                 end,
             },
             completion = {
-                completeopt = "menu,menuone,noinsert",
+                completeopt = "menu,menuone,noselect",
             },
             mapping = cmp.mapping.preset.insert({
-                ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
-                ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+                ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.select }),
+                ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.select }),
                 ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                 ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                ["<C-Space>"] = cmp.mapping.complete(),
-                ["<C-e>"] = cmp.mapping.abort(),
-                ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-                ["<S-CR>"] = cmp.mapping.confirm({
+                ["<C-Space>"] = cmp.mapping.complete(), -- invoke completion menu
+                ["<C-e>"] = cmp.mapping.abort(), -- remove the completion menu
+                ["<C-y>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+                ["<S-y>"] = cmp.mapping.confirm({
                     behavior = cmp.ConfirmBehavior.Replace,
                     select = true,
                 }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-                ["<C-CR>"] = function(fallback)
-                    cmp.abort()
-                    fallback()
-                end,
             }),
+            -- The order of the sources, will dictate the order in the auto-completion menu
             sources = cmp.config.sources({
+                { name = "nvim_lua" },
                 { name = "nvim_lsp" },
+                { name = "path" },
                 { name = "luasnip" },
-            }, {
-                    { name = "buffer" },
-                }),
-            experimental = {
-                ghost_text = {
-                    hl_group = "CmpGhostText",
+                { name = "buffer", keyword_length = 5 },
+            }),
+            formatting = {
+                format = lspkind.cmp_format {
+                    with_text = true,
+                    menu = {
+                        buffer = "[buf]",
+                        nvim_lsp = "[LSP]",
+                        nvim_lua = "[api]",
+                        path = "[path]",
+                        luasnip = "[snip]",
+                    },
                 },
+            },
+            experimental = {
+                -- kind of annoying and in the way
+                -- ghost_text = {
+                --     hl_group = "CmpGhostText",
+                -- },
             },
             sorting = defaults.sorting,
         }

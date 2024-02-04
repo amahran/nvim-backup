@@ -35,8 +35,6 @@ map.set({"n", "v"}, "<leader>d", [["_d]])
 
 map.set("n", "Q", "<nop>")
 map.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
--- This needs to be moved to the lsp
-map.set("n", "<leader>f", vim.lsp.buf.format)
 
 -- quick fix navigating
 map.set("n", "<C-k>", "<cmd>cnext<CR>zz")
@@ -48,12 +46,6 @@ map.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 map.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 -- make the file of the current buffer executable
 map.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
-
-map.set(
-    "n",
-    "<leader>ee",
-    "oif err != nil {<CR>}<Esc>Oreturn err<Esc>"
-)
 
 map.set("n", "<leader><leader>", function()
     vim.cmd("so")
