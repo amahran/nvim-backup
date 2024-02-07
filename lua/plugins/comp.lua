@@ -1,6 +1,6 @@
 return {
     -- config auto-completion
-    -- This is like asking everybody while typing whether they have any 
+    -- This is like asking everybody while typing whether they have any
     -- suggesstion of what is about to be typed and if so, it takes this
     -- input and suggessts it in a floating window
 
@@ -11,7 +11,7 @@ return {
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",     -- get the completion from the lsp
         "hrsh7th/cmp-buffer",       -- completion by gussing from the current buffer
-        "hrsh7th/cmp-path",         -- completes paths 
+        "hrsh7th/cmp-path",         -- completes paths
         "hrsh7th/cmp-nvim-lua",     -- helpful for lua develeopment - like writing this configurations
         "saadparwaiz1/cmp_luasnip", -- get completion from the luasnip plugin
         {
@@ -38,7 +38,7 @@ return {
             end,
         },
         "onsails/lspkind.nvim",
-    }, 
+    },
     opts = function() -- this like require(plugin).setup(opts)
         -- vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
         local cmp = require("cmp")
