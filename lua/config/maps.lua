@@ -31,7 +31,7 @@ map.set({"n", "v"}, "<leader>y", [["+y]])
 map.set("n", "<leader>Y", [["+Y]]) -- Y is same as yy
 
 -- delete to the void register so not saved anywhere
-map.set({"n", "v"}, "<leader>d", [["_d]])
+-- map.set({"n", "v"}, "<leader>d", [["_d]])
 
 map.set("n", "Q", "<nop>")
 map.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
@@ -56,3 +56,10 @@ end)
 map.set("n", "<c-l>", ":<c-u>nohlsearch<cr><c-l>")
 -- quality of life, although not so much needed with telescope around
 vim.api.nvim_set_keymap('c', '%%', [[(vim.fn.getcmdtype() == ':' and vim.fn.expand('%:h').'/' or '%%')]], { noremap = true, expr = true })
+
+-- increase/decrese the width of the current split
+map.set('n', '<C-Right>', ':vert resize +2<CR>')
+map.set('n', '<C-Left>', ':vert resize -2<CR>')
+map.set('n', '<C-Up>', ':resize +2<CR>')
+map.set('n', '<C-Down>', ':resize -2<CR>')
+
